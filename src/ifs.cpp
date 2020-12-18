@@ -1,7 +1,7 @@
 #include "utils.h"
 // #include <cmath>
 
-#define NUM_POINTS 1500000
+#define NUM_POINTS 15000
 #define WIDTH 1800
 #define HEIGHT 900
 
@@ -12,32 +12,72 @@ std::vector<std::vector<double>> affineTransformations
   {0.5, 0.0, 0.0, 0.5, 0.64, 0.8}
 };
 
-// std::vector<double> probabilities = {0.33, 0.33, 0.34};
+std::vector<double> probabilities;
 
 std::vector<double> points;
 bool pointsUpdated = false;
 
-// int generateRandomIndex() {
-//   double prob = random();
-//   double sumProb = 0.0;
-//   for (int i=0; i<probabilities.size(); i++) {
-//     sumProb += probabilities[i];
-//     if (prob <= sumProb) {
-//       return i;
-//     }
-//   }
-// }
+bool isConverging() {
+  bool converge = true;
+  
+  for (int i=0; i<affineTransformations.size(); i++) {
+    double a = affineTransformations[i][0];
+    double d = affineTransformations[i][3];
+    if !((a+d >= -1) && (a+d <= 1)) {
+      std::cout<<"\nTransformation "<<i+1<<" will not converge."<<std::endl;
+      converge = false;
+    }
+  }
+
+  return converge;
+}
+
+int generateIndex() {
+  double randomNum = (double) rand()/RAND_MAX;
+  double randSum = 0;
+
+  for (int i=0; i < probabilities.size(); i++) {
+    randSum += probabilities[i];
+    if (randomNum <= randSum) {
+      return i;
+    }
+  }
+
+  return probabilities.size() - 1; // If by chance randNum is not less than randSum because randSum does not reach 1 due to approximation errors in computation
+}
+
+void generateProbabilities() {
+  probabilities.clear();
+  double detSum = 0;
+
+  for (int i=0; i<affineTransformations.size(); i++) {
+    double a = affineTransformations[i][0];
+    double b = affineTransformations[i][1];
+    double c = affineTransformations[i][2];
+    double d = affineTransformations[i][3];
+    
+    double det = a*d - b*c;
+
+    probabilities.push_back(det);
+    detSum += det;
+  }
+
+  for (int i=0; i<probabilities.size(); i++) {
+    probabilities[i] = probabilities[i]/detSum;
+  }
+}
 
 void generatePoints()
 {
+  generateProbabilities();
   points.clear();
   double point[2] = {0, 0};
   points.push_back(point[0]);
   points.push_back(point[1]);
   points.push_back(0.0);
   for(int i=0; i<NUM_POINTS; i++) {
-    // int j = generateRandomIndex();
-    int j = rand()/((double)RAND_MAX + 1)*affineTransformations.size(); // Random index of affineTransformations
+    int j = generateIndex();
+    // int j = rand()/((double)RAND_MAX + 1)*affineTransformations.size(); // Random index of affineTransformations
     double old_point[2] = {point[0], point[1]};
     point[0] = old_point[0]*affineTransformations[j][0] + old_point[1]*affineTransformations[j][1] + affineTransformations[j][4];
     point[1] = old_point[0]*affineTransformations[j][2] + old_point[1]*affineTransformations[j][3] + affineTransformations[j][5];
@@ -117,7 +157,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c1", &c1); ImGui::SameLine();
         ImGui::InputDouble("d1", &d1); ImGui::SameLine();
         ImGui::InputDouble("e1", &e1); ImGui::SameLine();
-        ImGui::InputDouble("f1", &f1); ImGui::SameLine();
+        ImGui::InputDouble("f1", &f1); //ImGui::SameLine();
         // ImGui::InputDouble("p1", &p1);
         iter+=1;
       }
@@ -129,7 +169,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c2", &c2); ImGui::SameLine();
         ImGui::InputDouble("d2", &d2); ImGui::SameLine();
         ImGui::InputDouble("e2", &e2); ImGui::SameLine();
-        ImGui::InputDouble("f2", &f2); ImGui::SameLine();
+        ImGui::InputDouble("f2", &f2); //ImGui::SameLine();
         // ImGui::InputDouble("p2", &p2);
         iter+=1;
       }
@@ -141,7 +181,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c3", &c3); ImGui::SameLine();
         ImGui::InputDouble("d3", &d3); ImGui::SameLine();
         ImGui::InputDouble("e3", &e3); ImGui::SameLine();
-        ImGui::InputDouble("f3", &f3); ImGui::SameLine();
+        ImGui::InputDouble("f3", &f3); //ImGui::SameLine();
         // ImGui::InputDouble("p3", &p3);
         iter+=1;
       }
@@ -153,7 +193,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c4", &c4); ImGui::SameLine();
         ImGui::InputDouble("d4", &d4); ImGui::SameLine();
         ImGui::InputDouble("e4", &e4); ImGui::SameLine();
-        ImGui::InputDouble("f4", &f4); ImGui::SameLine();
+        ImGui::InputDouble("f4", &f4); //ImGui::SameLine();
         // ImGui::InputDouble("p4", &p4);
         iter+=1;
       }
@@ -165,7 +205,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c5", &c5); ImGui::SameLine();
         ImGui::InputDouble("d5", &d5); ImGui::SameLine();
         ImGui::InputDouble("e5", &e5); ImGui::SameLine();
-        ImGui::InputDouble("f5", &f5); ImGui::SameLine();
+        ImGui::InputDouble("f5", &f5); //ImGui::SameLine();
         // ImGui::InputDouble("p5", &p5);
         iter+=1;
       }
@@ -177,7 +217,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c6", &c6); ImGui::SameLine();
         ImGui::InputDouble("d6", &d6); ImGui::SameLine();
         ImGui::InputDouble("e6", &e6); ImGui::SameLine();
-        ImGui::InputDouble("f6", &f6); ImGui::SameLine();
+        ImGui::InputDouble("f6", &f6);
         // ImGui::InputDouble("p6", &p6);
         iter+=1;
       }
@@ -189,7 +229,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c7", &c7); ImGui::SameLine();
         ImGui::InputDouble("d7", &d7); ImGui::SameLine();
         ImGui::InputDouble("e7", &e7); ImGui::SameLine();
-        ImGui::InputDouble("f7", &f7); ImGui::SameLine();
+        ImGui::InputDouble("f7", &f7); 
         // ImGui::InputDouble("p7", &p7);
         iter+=1;
       }
@@ -201,7 +241,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c8", &c8); ImGui::SameLine();
         ImGui::InputDouble("d8", &d8); ImGui::SameLine();
         ImGui::InputDouble("e8", &e8); ImGui::SameLine();
-        ImGui::InputDouble("f8", &f8); ImGui::SameLine();
+        ImGui::InputDouble("f8", &f8);
         // ImGui::InputDouble("p8", &p8);
         iter+=1;
       }
@@ -213,7 +253,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c9", &c9); ImGui::SameLine();
         ImGui::InputDouble("d9", &d9); ImGui::SameLine();
         ImGui::InputDouble("e9", &e9); ImGui::SameLine();
-        ImGui::InputDouble("f9", &f9); ImGui::SameLine();
+        ImGui::InputDouble("f9", &f9); 
         // ImGui::InputDouble("p9", &p9);
         iter+=1;
       }
@@ -225,7 +265,7 @@ int main(int, char* argv[]) {
         ImGui::InputDouble("c10", &c10); ImGui::SameLine();
         ImGui::InputDouble("d10", &d10); ImGui::SameLine();
         ImGui::InputDouble("e10", &e10); ImGui::SameLine();
-        ImGui::InputDouble("f10", &f10); ImGui::SameLine();
+        ImGui::InputDouble("f10", &f10); 
         // ImGui::InputDouble("p10", &p10);
         iter+=1;
       }
@@ -233,7 +273,7 @@ int main(int, char* argv[]) {
       if (ImGui::Button("Generate")){
         std::cout<<"started generating"<<std::endl;
         affineTransformations.clear();
-        probabilities.clear();
+        // probabilities.clear();
         
         int i = 0;
         if (i < numOfTrans+1){
@@ -300,21 +340,23 @@ int main(int, char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (pointsUpdated) {
-      // Update VAO/VBO for points (since we updated the affine transformations)
-      generatePoints();
-      glBindVertexArray(VAO_points);
-      glBindBuffer(GL_ARRAY_BUFFER, VBO_points);
-      glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(GLdouble), &points[0], GL_DYNAMIC_DRAW);
-      glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)0);
-      glEnableVertexAttribArray(0); //Enable first attribute buffer (vertices)
-      pointsUpdated = false;
+      if (isConverging) {
+        // Update VAO/VBO for points (since we updated the affine transformations)
+        generatePoints();
+        glBindVertexArray(VAO_points);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_points);
+        glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(GLdouble), &points[0], GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)0);
+        glEnableVertexAttribArray(0); //Enable first attribute buffer (vertices)
+        pointsUpdated = false;
+      }
     }
 
     glUseProgram(shaderProgram);
 
     // Draw points
     glBindVertexArray(VAO_points);
-    glPointSize(WIDTH*HEIGHT/NUM_POINTS);
+    glPointSize(WIDTH*HEIGHT/1500000);
     glDrawArrays(GL_POINTS, 0, points.size()/3);
 
     // glUseProgram(0);
