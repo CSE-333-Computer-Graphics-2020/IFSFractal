@@ -1,7 +1,7 @@
 #include "utils.h"
 // #include <cmath>
 
-#define NUM_POINTS 15000
+#define NUM_POINTS 1000000
 #define WIDTH 1800
 #define HEIGHT 900
 
@@ -23,7 +23,7 @@ bool isConverging() {
   for (int i=0; i<affineTransformations.size(); i++) {
     double a = affineTransformations[i][0];
     double d = affineTransformations[i][3];
-    if !((a+d >= -1) && (a+d <= 1)) {
+    if (!((a+d >= -1) && (a+d <= 1))) {
       std::cout<<"\nTransformation "<<i+1<<" will not converge."<<std::endl;
       converge = false;
     }
@@ -137,7 +137,7 @@ int main(int, char* argv[]) {
 
     static const char * items[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
     static int numOfTrans = -1;
-    static bool confirm = false;
+    // static bool confirm = false;
 
     {
       ImGui::Begin("Menu", NULL, ImGuiWindowFlags_AlwaysAutoResize);
@@ -348,8 +348,8 @@ int main(int, char* argv[]) {
         glBufferData(GL_ARRAY_BUFFER, points.size()*sizeof(GLdouble), &points[0], GL_DYNAMIC_DRAW);
         glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)0);
         glEnableVertexAttribArray(0); //Enable first attribute buffer (vertices)
-        pointsUpdated = false;
       }
+      pointsUpdated = false;
     }
 
     glUseProgram(shaderProgram);
