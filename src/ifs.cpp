@@ -23,7 +23,7 @@ bool isConverging() {
   for (int i=0; i<affineTransformations.size(); i++) {
     double a = affineTransformations[i][0];
     double d = affineTransformations[i][3];
-    if (!((a+d >= -1) && (a+d <= 1))) {
+    if ((a+d < -1) || (a+d > 1)) {
       std::cout<<"\nTransformation "<<i+1<<" will not converge."<<std::endl;
       converge = false;
     }
@@ -71,7 +71,7 @@ void generatePoints()
 {
   generateProbabilities();
   points.clear();
-  double point[2] = {0, 0};
+  double point[2] = {1, 1};
   points.push_back(point[0]);
   points.push_back(point[1]);
   points.push_back(0.0);
@@ -86,8 +86,6 @@ void generatePoints()
     points.push_back(0.0);
   }
   int n = points.size();
-  std::cout << points[n-6] << " " << points[n-5] << std::endl;
-  std::cout << points[n-3] << " " << points[n-2];
 }
 
 int main(int, char* argv[]) {
@@ -271,7 +269,7 @@ int main(int, char* argv[]) {
       }
 
       if (ImGui::Button("Generate")){
-        std::cout<<"started generating"<<std::endl;
+        std::cout<<"\nstarted generating"<<std::endl;
         affineTransformations.clear();
         // probabilities.clear();
         
@@ -318,12 +316,16 @@ int main(int, char* argv[]) {
         }
 
         pointsUpdated = true;
+
+        //Debug
         for (int i = 0; i < affineTransformations.size(); i++)
         {
+            std::cout << "Affine Transformation " << i+1 << ": ";
             for (int j = 0; j < affineTransformations[i].size(); j++)
             {
-                std::cout << affineTransformations[i][j] << std::endl;
+                std::cout << affineTransformations[i][j] << " ";
             }
+            std::cout << std::endl;
         }
       }
 
@@ -340,7 +342,8 @@ int main(int, char* argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (pointsUpdated) {
-      if (isConverging) {
+      if (isConverging()) {
+        // All the affine transformations are convergent
         // Update VAO/VBO for points (since we updated the affine transformations)
         generatePoints();
         glBindVertexArray(VAO_points);
