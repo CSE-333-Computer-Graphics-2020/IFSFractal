@@ -1,7 +1,7 @@
 #include "utils.h"
 // #include <cmath>
 
-#define NUM_POINTS 1000000
+#define NUM_POINTS 500000
 #define WIDTH 1800
 #define HEIGHT 900
 
@@ -10,6 +10,18 @@ std::vector<std::vector<double>> affineTransformations
   {0.5, 0.0, 0.0, 0.5, 0.0, 0.0},
   {0.5, 0.0, 0.0, 0.5, 1.28, 0.0},
   {0.5, 0.0, 0.0, 0.5, 0.64, 0.8}
+  
+  // {0.195, -0.488, 0.344, 0.4430, 0.4431, 0.2452},
+  // {0.362, 0.414, -0.252, 0.361, 0.2511, 0.5692},
+  // {-0.637, 0, 0, 0.501, 0.8562, 0.2512},
+  // {-0.035, 0.07, -0.469, 0.022, 0.4884, 0.5069},
+  // {-0.058, -0.07, 0.453, -0.111, 0.5976, 0.0969}
+
+  // {0, 0.2439, 0, 0.3053, 0, 0},
+  // {0.7248, 0.0337, -0.0253, 0.7426, 0.2060, 0.2538},
+  // {0.1583, -0.1297, 0.355, 0.3676, 0.1383, 0.175},
+  // {0.3386, 0.3694, 0.2227, -0.0756, 0.0679, 0.0826}
+
 };
 
 std::vector<double> probabilities;
@@ -33,7 +45,7 @@ bool isConverging() {
 }
 
 int generateIndex() {
-  double randomNum = (double) rand()/RAND_MAX;
+  double randomNum = rand()/((double)RAND_MAX + 1);
   double randSum = 0;
 
   for (int i=0; i < probabilities.size(); i++) {
@@ -57,21 +69,27 @@ void generateProbabilities() {
     double d = affineTransformations[i][3];
     
     double det = a*d - b*c;
+    if (det < 0) {
+      det = -det;
+    }
 
     probabilities.push_back(det);
     detSum += det;
   }
 
+  std::cout << "\nProbabilities:";
   for (int i=0; i<probabilities.size(); i++) {
     probabilities[i] = probabilities[i]/detSum;
+    std::cout << " " << probabilities[i];
   }
+  std::cout << std::endl;
 }
 
 void generatePoints()
 {
   generateProbabilities();
   points.clear();
-  double point[2] = {1, 1};
+  double point[2] = {0.1, -0.2};
   points.push_back(point[0]);
   points.push_back(point[1]);
   points.push_back(0.0);
